@@ -58,21 +58,20 @@ module.exports = async (req, res) => {
     try {
         // Salva no Supabase
         const databaseResponse = await fetch(
-            `${supabaseUrl}/rest/v1/site_visits`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    apikey: supabaseKey,
-                    Prefer: "return=minimal"
-                },
-                body: JSON.stringify({
-                    ip_address: ip,
-                    country: country,
-                    region: region,
-                    created_at: createdAt
-                })
-            }
+            `${supabaseUrl.trim().replace(/\/+$/, "")}/rest/v1/site_visits`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                apikey: supabaseKey,
+                Prefer: "return=minimal"
+            },
+            body: JSON.stringify({
+                ip_address: ip,
+                country: country,
+                region: region,
+                created_at: createdAt
+            })
+        }
         );
 
         if (!databaseResponse.ok) {
