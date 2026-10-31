@@ -57,8 +57,12 @@ module.exports = async (req, res) => {
 
     try {
         // Salva no Supabase
+        const databaseUrl = `${supabaseUrl.trim().replace(/\/+$/, "")}/rest/v1/site_visits`;
+
+        console.log("URL usada no Supabase:", databaseUrl);
+
         const databaseResponse = await fetch(
-            `${supabaseUrl.trim().replace(/\/+$/, "")}/rest/v1/site_visits`, {
+            databaseUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
