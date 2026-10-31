@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AthenasMagic — Minecraft modded Survival server.">
+  <title>AthenasMagic — Realm of Magic</title>
+  <style>
+    :root {
+      --site-primary: #173B78;
+      --site-on-primary: #FFFFFF;
+      --site-secondary: #79B8FF;
+      --site-on-secondary: #061426;
+      --site-background: #050914;
+      --site-on-background: #EAF2FF;
+      --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --site-font-heading: Georgia, "Times New Roman", serif;
+      --site-heading-scale: 1;
+      --site-spacing-scale: 1;
+      --site-radius-scale: 1;
+      --site-decoration-opacity: 1;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--site-font-body);
+      background: var(--site-background);
+      color: var(--site-on-background);
+    }
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+
+    #app {
+      position: relative;
+      isolation: isolate;
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+      border-radius: 0;
+      color: var(--site-on-background);
+      background-color: var(--site-background);
+    }
+
+    .ambient {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: var(--site-decoration-opacity);
+    }
+    .ambient::before, .ambient::after {
+      content: "";
+      position: absolute;
+      width: 34rem;
+      height: 34rem;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: .22;
+    }
+    .ambient::before { top: 5rem; left: -18rem; background: #123D7A; }
+    .ambient::after { top: 34rem; right: -20rem; background: #1765A8; }
+
+    .shell { width: min(1160px, calc(100% - 44px)); margin: 0 auto; }
+    .topbar {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: calc(22px * var(--site-spacing-scale)) 0;
+      border-bottom: 1px solid rgba(90,130,190,.08);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      border: 1px solid color-mix(in srgb, var(--site-secondary) 65%, transparent);
+      border-radius: calc(13px * var(--site-radius-scale));
+      color: var(--site-secondary);
+      background: color-mix(in srgb, var(--site-primary) 22%, transparent);
+      box-shadow: 0 0 24px rgba(44,119,210,.24);
+    }
+    .brand-mark svg { width: 25px; height: 25px; }
+    .brand-name { font-family: var(--site-font-heading); font-size: 20px; letter-spacing: .04em; font-weight: 700; }
+    .brand-kicker { display: block; margin-top: 2px; color: #65748C; font-size: 9px; letter-spacing: .24em; text-transform: uppercase; }
+    .nav { display: flex; align-items: center; gap: 28px; color: #8998B0; font-size: 13px; }
+    .nav a { transition: color .2s ease; }
+    .nav a:hover { color: var(--site-secondary); }
+    .nav .admin-link { color: var(--site-secondary); }
+    .menu-toggle { display: none; border: 1px solid var(--line); background: transparent; color: inherit; border-radius: 10px; padding: 9px 12px; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.06fr .94fr;
+      align-items: center;
+      gap: 50px;
+      min-height: 590px;
+      padding: 78px 0 82px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--site-secondary);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--site-secondary); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 650px;
+      margin: 22px 0 20px;
+      font-family: var(--site-font-heading);
+      font-size: clamp(52px, 7.1vw, 88px);
+      line-height: .98;
+      letter-spacing: -.045em;
+      font-weight: 500;
+    }
+    h1 span { color: var(--site-secondary); font-style: italic; }
+    .hero-copy { max-width: 510px; color: #8996AA; font-size: 16px; line-height: 1.8; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 20px;
+      border: 1px solid transparent;
+      border-radius: calc(10px * var(--site-radius-scale));
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: transform .2s ease, filter .2s ease, border-color .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .btn-primary { color: var(--site-on-primary); background: var(--site-primary); box-shadow: 0 10px 30px rgba(20,65,130,.18); }
+    .btn-outline { color: #C5D2E5; border-color: rgba(120,155,205,.18); background: rgba(7,14,28,.72); }
+    .btn-gold { color: var(--site-on-secondary); background: var(--site-secondary); }
+    .btn:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--site-secondary); outline-offset: 3px; }
+    .hero-note { display: flex; align-items: center; gap: 10px; margin-top: 26px; color: #687991; font-size: 11px; }
+    .hero-note svg { color: var(--site-secondary); }
+
+    .hero-art {
+      position: relative;
+      min-height: 405px;
+      display: grid;
+      place-items: center;
+    }
+    .rune-ring {
+      position: absolute;
+      width: min(420px, 90%);
+      aspect-ratio: 1;
+      border: 1px solid rgba(121,184,255,.22);
+      border-radius: 50%;
+      box-shadow: 0 0 70px rgba(35,104,190,.2), inset 0 0 55px rgba(35,104,190,.12);
+    }
+    .rune-ring::before, .rune-ring::after { content: ""; position: absolute; inset: 23px; border: 1px dashed rgba(121,184,255,.23); border-radius: 50%; }
+    .rune-ring::after { inset: 62px; border-style: solid; border-color: rgba(65,139,220,.38); }
+    .crystal-scene { position: relative; width: min(410px, 92%); height: 380px; display: grid; place-items: center; }
+    .crystal-glow { position: absolute; width: 220px; height: 220px; border-radius: 50%; background: #174C9B; filter: blur(65px); opacity: .4; }
+    .crystal { position: absolute; filter: hue-rotate(-42deg) drop-shadow(0 0 22px rgba(73,151,255,.42)); }
+    .crystal.main { width: 175px; height: 250px; top: 48px; left: 118px; }
+    .crystal.small-left { width: 90px; height: 140px; top: 160px; left: 45px; opacity: .75; transform: rotate(-14deg); }
+    .crystal.small-right { width: 104px; height: 155px; top: 145px; right: 28px; opacity: .8; transform: rotate(14deg); }
+    .floating-star { position: absolute; color: var(--site-secondary); font-size: 20px; text-shadow: 0 0 18px rgba(216,181,110,.7); }
+    .star-one { top: 45px; right: 62px; }
+    .star-two { bottom: 60px; left: 46px; font-size: 13px; }
+    .star-three { bottom: 42px; right: 64px; font-size: 12px; }
+    .art-caption { position: absolute; right: 0; bottom: 10px; color: light-dark(#8D829B, #948AA4); font-size: 9px; letter-spacing: .25em; text-transform: uppercase; }
+
+    .server-strip {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 28px;
+      border: 1px solid rgba(105,145,205,.13);
+      border-radius: calc(16px * var(--site-radius-scale));
+      background: #080F1D;
+      box-shadow: 0 18px 55px rgba(0,0,0,.07);
+    }
+    .server-label { color: #73839B; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; }
+    .server-address { margin-top: 7px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: clamp(17px, 2.4vw, 23px); font-weight: 700; letter-spacing: .04em; }
+    .server-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 9px; color: #77869D; font-size: 11px; }
+    .server-meta span { display: inline-flex; align-items: center; gap: 7px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #C28D42; box-shadow: 0 0 0 4px rgba(194,141,66,.12); }
+    .copy-btn { white-space: nowrap; }
+
+    .section { padding: 100px 0; }
+    .section-heading { max-width: 650px; margin-bottom: 38px; }
+    .section-heading h2 { margin: 14px 0 12px; font-family: var(--site-font-heading); font-size: clamp(36px, 4.4vw, 54px); line-height: 1.05; font-weight: 500; letter-spacing: -.03em; }
+    .section-heading p { color: #8996AA; line-height: 1.7; font-size: 14px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature-card {
+      min-height: 205px;
+      padding: 26px;
+      border: 1px solid rgba(105,145,205,.12);
+      border-radius: calc(14px * var(--site-radius-scale));
+      background: #080F1D;
+    }
+    .feature-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 23px; border-radius: 12px; color: var(--site-secondary); background: color-mix(in srgb, var(--site-primary) 18%, transparent); }
+    .feature-icon svg { width: 21px; height: 21px; }
+    .feature-card h3 { margin-bottom: 9px; font-family: var(--site-font-heading); font-size: 22px; font-weight: 600; }
+    .feature-card p { margin: 0; color: #8492A8; font-size: 12px; line-height: 1.7; }
+
+    .download-panel {
+      display: grid;
+      grid-template-columns: 1fr .8fr;
+      gap: 36px;
+      align-items: center;
+      padding: 42px;
+      border: 1px solid rgba(75,125,195,.2);
+      border-radius: calc(18px * var(--site-radius-scale));
+      background: linear-gradient(120deg, #071329, #030711 78%);
+      color: #F7F2FF;
+      overflow: hidden;
+      position: relative;
+    }
+    .download-panel::after { content: "✧"; position: absolute; right: 28%; top: -82px; color: rgba(72,130,210,.08); font-size: 270px; pointer-events: none; }
+    .download-panel h2 { position: relative; z-index: 1; margin: 14px 0; font-family: var(--site-font-heading); font-size: clamp(34px, 4vw, 48px); font-weight: 500; }
+    .download-panel p { position: relative; z-index: 1; max-width: 510px; color: #8795AA; font-size: 13px; line-height: 1.8; }
+    .download-details { position: relative; z-index: 1; padding: 22px; border: 1px solid rgba(110,150,205,.14); border-radius: 13px; background: #050B17; }
+    .download-details strong { display: block; margin-bottom: 6px; font-size: 13px; }
+    .download-details span { color: #7F8DA3; font-size: 11px; line-height: 1.7; }
+    .download-details .btn { width: 100%; margin-top: 18px; }
+    .download-details .btn:disabled { opacity: .65; cursor: not-allowed; transform: none; filter: none; }
+    .tutorial-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .tutorial-step { padding: 24px; border: 1px solid rgba(105,145,205,.12); border-radius: calc(14px * var(--site-radius-scale)); background: #080F1D; }
+    .tutorial-number { display: inline-grid; place-items: center; width: 34px; height: 34px; margin-bottom: 14px; border-radius: 10px; color: var(--site-secondary); background: color-mix(in srgb, var(--site-primary) 22%, transparent); font-weight: 800; }
+    .tutorial-step h3 { margin-bottom: 9px; font-family: var(--site-font-heading); font-size: 21px; }
+    .tutorial-step p { margin: 0; color: #8492A8; font-size: 12px; line-height: 1.75; }
+    .tutorial-step a { color: var(--site-secondary); text-decoration: underline; text-underline-offset: 3px; }
+    .tutorial-note { margin-top: 18px; padding: 16px 18px; border-left: 2px solid var(--site-secondary); color: #8996AA; background: #070D19; font-size: 12px; line-height: 1.7; }
+
+    .community {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 28px;
+      padding: 34px 0 88px;
+      border-top: 1px solid rgba(90,130,190,.08);
+    }
+    .community h2 { margin: 0 0 8px; font-family: var(--site-font-heading); font-size: 32px; font-weight: 500; }
+    .community p { margin: 0; color: #8492A8; font-size: 12px; }
+    footer { padding: 20px 0 28px; border-top: 1px solid rgba(90,130,190,.08); color: #66758C; font-size: 10px; letter-spacing: .08em; }
+    .footer-row { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+
+    .admin-view { display: none; min-height: 80vh; padding: 68px 0 100px; }
+    .admin-view.active { display: block; }
+    .public-view.hidden { display: none; }
+    .admin-wrap { display: grid; grid-template-columns: 1fr .85fr; gap: 30px; align-items: stretch; max-width: 900px; margin: 0 auto; }
+    .login-card, .admin-info { padding: 34px; border: 1px solid rgba(105,145,205,.13); border-radius: calc(16px * var(--site-radius-scale)); background: #080F1D; }
+    .login-card h1 { margin: 14px 0; font-size: 43px; }
+    .login-card p, .admin-info p { color: #8492A8; font-size: 12px; line-height: 1.75; }
+    .field { display: block; margin: 22px 0 0; color: #B7C5D9; font-size: 11px; font-weight: 700; }
+    .field input { display: block; width: 100%; margin-top: 8px; padding: 13px 14px; border: 1px solid rgba(120,155,205,.18); border-radius: 9px; color: inherit; background: #030812; }
+    .login-card .btn { width: 100%; margin-top: 24px; }
+    .notice { margin-top: 15px; padding: 12px 14px; border-left: 2px solid var(--site-secondary); color: light-dark(#766C82, #B6ACC4); background: light-dark(#F7F3FA, rgba(255,255,255,.04)); font-size: 11px; line-height: 1.6; }
+    .admin-info { display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(150deg, color-mix(in srgb, var(--site-primary) 38%, #080F1E), #080E1B); color: #EAF2FF; }
+    .admin-info h2 { font-family: var(--site-font-heading); font-size: 31px; font-weight: 500; }
+    .admin-info p { color: #B9AFC8; }
+    .admin-points { display: grid; gap: 13px; margin-top: 26px; color: #DCD4E8; font-size: 12px; }
+    .admin-points span { display: flex; gap: 10px; align-items: center; }
+    .admin-points b { color: var(--site-secondary); font-weight: 400; }
+    .back-link { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; color: light-dark(#756A83, #B4A9C3); font-size: 12px; }
+    .toast { position: fixed; z-index: 20; right: 22px; bottom: 22px; max-width: min(360px, calc(100% - 44px)); padding: 14px 17px; border: 1px solid rgba(216,181,110,.35); border-radius: 11px; color: #F7F2FF; background: #211A31; box-shadow: 0 14px 40px rgba(0,0,0,.3); font-size: 12px; line-height: 1.55; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 780px) {
+      .nav { display: none; position: absolute; top: 75px; right: 0; left: 0; padding: 18px; flex-direction: column; align-items: flex-start; gap: 18px; border: 1px solid rgba(105,145,205,.16); border-radius: 12px; background: #070D19; }
+      .nav.open { display: flex; }
+      .menu-toggle { display: inline-flex; }
+      .hero { grid-template-columns: 1fr; gap: 18px; padding: 64px 0 50px; }
+      .hero-art { min-height: 320px; }
+      .crystal-scene { transform: scale(.84); }
+      .art-caption { right: 10px; }
+      .server-strip { grid-template-columns: 1fr; }
+      .copy-btn { width: 100%; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .feature-card { min-height: auto; }
+      .tutorial-grid { grid-template-columns: 1fr; }
+      .download-panel { grid-template-columns: 1fr; padding: 28px; }
+      .community { align-items: flex-start; flex-direction: column; }
+      .admin-wrap { grid-template-columns: 1fr; }
+      .admin-info { min-height: 250px; }
+    }
+    @media (max-width: 420px) {
+      .shell { width: min(100% - 30px, 1160px); }
+      .brand-name { font-size: 17px; }
+      h1 { font-size: 54px; }
+      .hero-actions .btn { width: 100%; }
+      .server-strip { padding: 20px; }
+      .server-meta { gap: 10px; }
+      .section { padding: 72px 0; }
+      .download-panel { padding: 23px; }
+      .login-card, .admin-info { padding: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#inicio" id="brandHome" aria-label="AthenasMagic home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2L12 2.5Z"/><path d="m18.5 3 .7 2.2 2.3.8-2.3.7-.7 2.3-.8-2.3-2.2-.7 2.2-.8.8-2.2Z"/></svg>
+          </span>
+          <span><span class="brand-name">ATHENAS<span style="color:var(--site-secondary)">MAGIC</span></span><span class="brand-kicker">Realm of magic</span></span>
+        </a>
+        <nav class="nav" id="navLinks" aria-label="Main navigation">
+          <a href="#inicio" data-home-link>Home</a>
+          <a href="#aventura" data-home-link>The adventure</a>
+          <a href="#downloads" data-home-link>Downloads</a>
+          <a href="#instalacao" data-home-link>How to install</a>
+          <a href="#comunidade" data-home-link>Community</a>
+          <a href="#admin" class="admin-link">Admin area ↗</a>
+        </nav>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false">Menu</button>
+      </header>
+
+      <div class="public-view" id="publicView">
+        <section class="hero" id="inicio">
+          <div>
+            <div class="eyebrow">A new journey awaits you</div>
+            <h1>Enter a world <span>beyond ordinary.</span></h1>
+            <p class="hero-copy">Explore, build your story, and uncover the secrets of a realm where every adventure can become a legend. Your journey begins at AthenasMagic.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#downloads">Explore the modpack <span aria-hidden="true">↗</span></a>
+              <button class="btn btn-outline" id="copyHero" type="button">Copy server address</button>
+            </div>
+            <div class="hero-note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg> Modded Survival · Minecraft 1.21.1</div>
+          </div>
+          <div class="hero-art" aria-label="Magical crystals">
+            <div class="rune-ring"></div>
+            <div class="crystal-scene">
+              <div class="crystal-glow"></div>
+              <svg class="crystal main" viewBox="0 0 180 260" fill="none"><path d="M90 5 151 72 129 207 90 253 49 207 27 72 90 5Z" fill="#7047D7" fill-opacity=".22" stroke="#B89BFF" stroke-width="1.5"/><path d="M90 5 90 253 49 207 27 72 90 5Z" fill="#A989FF" fill-opacity=".26"/><path d="m90 5 61 67-61 20-63-20L90 5Z" fill="#D8C6FF" fill-opacity=".38"/><path d="m90 92 39 115-39 46V92Z" fill="#8E68F2" fill-opacity=".42"/><path d="m27 72 63 20 61-20M90 92v161" stroke="#D7C5FF" stroke-opacity=".75" stroke-width="1.3"/></svg>
+              <svg class="crystal small-left" viewBox="0 0 100 160" fill="none"><path d="M50 4 87 47 75 126 50 155 25 126 13 47 50 4Z" fill="#865BEA" fill-opacity=".3" stroke="#B89BFF"/><path d="m50 4 37 43-37 12-37-12L50 4Z" fill="#C4AEFF" fill-opacity=".35"/><path d="M50 59v96" stroke="#D8C8FF"/></svg>
+              <svg class="crystal small-right" viewBox="0 0 110 170" fill="none"><path d="M55 4 98 52 82 134 55 164 28 134 12 52 55 4Z" fill="#865BEA" fill-opacity=".3" stroke="#B89BFF"/><path d="m55 4 43 48-43 13-43-13L55 4Z" fill="#C4AEFF" fill-opacity=".35"/><path d="M55 65v99" stroke="#D8C8FF"/></svg>
+              <span class="floating-star star-one">✧</span><span class="floating-star star-two">✦</span><span class="floating-star star-three">✧</span>
+            </div>
+            <div class="art-caption">Discover · Build · Evolve</div>
+          </div>
+        </section>
+
+        <section class="server-strip" aria-label="Server information">
+          <div>
+            <div class="server-label">Server address</div>
+            <div class="server-address" id="serverAddress">athenasmagic.com.br</div>
+            <div class="server-meta"><span><i class="dot"></i> Status will be available after launch</span><span>✦ Minecraft 1.21.1</span><span>◈ Modded Survival</span></div>
+          </div>
+          <button class="btn btn-outline copy-btn" id="copyServer" type="button">Copy IP <span aria-hidden="true">⧉</span></button>
+        </section>
+
+        <section class="section" id="aventura">
+          <div class="section-heading">
+            <div class="eyebrow">What awaits you</div>
+            <h2>An extraordinary adventure.</h2>
+            <p>Prepare your gear, gather your allies, and discover everything the world of AthenasMagic has to offer.</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m12 3 2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2L12 3Z"/><path d="m19 16 .9 2.1L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.9L19 16Z"/></svg></div><h3>Magic & discovery</h3><p>Explore a modded universe and uncover new possibilities with every journey.</p></article>
+            <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-7h6v7M8 10h.01M16 10h.01"/></svg></div><h3>Your own realm</h3><p>Build, customize your space, and turn your ideas into ambitious projects.</p></article>
+            <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6"/></svg></div><h3>Play together</h3><p>Share your adventures, meet other players, and forge new alliances.</p></article>
+          </div>
+        </section>
+
+        <section class="section" id="downloads">
+          <div class="download-panel">
+            <div>
+              <div class="eyebrow">Prepare for your journey</div>
+              <h2>The official modpack.</h2>
+              <p>Download the AthenasMagic modpack and get your Minecraft ready to enter the realm. The download file is set up for this section.</p>
+            </div>
+            <div class="download-details">
+              <strong>AthenasMagic Modpack</strong>
+              <span>ZIP file · Direct download from the website</span>
+              <a class="btn btn-gold" href="mush%20mods.zip" download>Download modpack</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="instalacao">
+          <div class="section-heading">
+            <div class="eyebrow">Getting started</div>
+            <h2>How to install.</h2>
+            <p>Follow these simple steps to install the AthenasMagic modpack and begin your adventure.</p>
+          </div>
+          <div class="tutorial-grid">
+            <article class="tutorial-step"><span class="tutorial-number">01</span><h3>Download the modpack</h3><p>Download the AthenasMagic <strong>.zip</strong> file from our downloads section. Then find it in your Downloads folder and extract its contents.</p><p style="margin-top:10px">The package contains the mod files. Fabric must be installed separately in the next step.</p></article>
+            <article class="tutorial-step"><span class="tutorial-number">02</span><h3>Install Fabric</h3><p>Visit the <a href="https://fabricmc.net/use/installer/" target="_blank" rel="noopener noreferrer">official Fabric website</a>, download and run the installer. Select <strong>Client</strong> and choose Minecraft <strong>1.21.1</strong>. Then click <strong>Install</strong>.</p><p style="margin-top:10px">Make sure you select the correct Minecraft version.</p></article>
+            <article class="tutorial-step"><span class="tutorial-number">03</span><h3>Install the mods</h3><p>Press <strong>Win + R</strong>, type <strong>%appdata%\.minecraft</strong>, and press Enter. Open the <strong>mods</strong> folder (create it if it doesn't exist) and place the <strong>.jar</strong> files from the extracted package inside it.</p><p style="margin-top:10px">Do not place the entire ZIP file inside the mods folder.</p></article>
+            <article class="tutorial-step"><span class="tutorial-number">04</span><h3>Launch Minecraft</h3><p>Open the Minecraft Launcher, select the <strong>Fabric Loader 1.21.1</strong> profile, and click <strong>Play</strong>. Then open Multiplayer and connect to <strong>athenasmagic.com.br</strong>.</p><p style="margin-top:10px">We recommend allocating at least <strong>4 GB of RAM</strong> to the game, if your computer has enough memory.</p></article>
+          </div>
+          <div class="tutorial-note"><strong>Note:</strong> the mods must be compatible with Fabric and Minecraft 1.21.1. If the extracted package already contains a folder named <strong>mods</strong>, open it and copy the .jar files inside to <strong>.minecraft\mods</strong>. Minecraft 1.21.1 requires Java 21.</div>
+        </section>
+
+        <section class="community" id="comunidade">
+          <div><h2>Your next story starts here.</h2><p>Enter the AthenasMagic realm and become part of the adventure.</p></div>
+          <button class="btn btn-outline" id="discordButton" type="button">Discord coming soon ↗</button>
+        </section>
+      </div>
+
+      <section class="admin-view" id="adminView">
+        <a class="back-link" href="#inicio" id="backHome">← Back to website</a>
+        <div class="admin-wrap">
+          <div class="login-card">
+            <div class="eyebrow">Restricted access</div>
+            <h1>Realm <span style="color:var(--site-secondary)">dashboard.</span></h1>
+            <p>Sign in with your administrator credentials to manage AthenasMagic.</p>
+            <form id="loginForm">
+              <label class="field">Username<input name="username" autocomplete="username" placeholder="Your username" value="hellisty" required></label>
+              <label class="field">Password<input name="password" type="password" autocomplete="current-password" placeholder="Your password" required></label>
+              <button class="btn btn-primary" type="submit">Sign in →</button>
+            </form>
+            <div class="notice">This is a visual preview. Real authentication will be connected to the backend before launch. Do not use a real password in this demo.</div>
+          </div>
+          <aside class="admin-info">
+            <div><div class="eyebrow">AthenasMagic administration</div><h2>Your realm, under your control.</h2><p>In the connected version, this area will bring together administration tools and website access data.</p></div>
+            <div class="admin-points"><span><b>✦</b> Visitor and region statistics</span><span><b>✦</b> Access history with minimized data</span><span><b>✦</b> Discord notifications</span><span><b>✦</b> Modpack and news management</span></div>
+          </aside>
+        </div>
+      </section>
+
+      <footer><div class="footer-row"><span>© 2026 ATHENASMAGIC · REALM OF MAGIC</span><span>Minecraft 1.21.1 · Modded Survival</span></div></footer>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script>
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+    async function copyServerAddress() {
+      const address = 'athenasmagic.com.br';
+      try {
+        await navigator.clipboard.writeText(address);
+        showToast('Server address copied: ' + address);
+      } catch (error) {
+        showToast('Server address: ' + address);
+      }
+    }
+    document.getElementById('copyServer').addEventListener('click', copyServerAddress);
+    document.getElementById('copyHero').addEventListener('click', copyServerAddress);
+    document.getElementById('discordButton').addEventListener('click', () => {
+      showToast('The Discord invite will be added once you provide the server link.');
+    });
+    const publicView = document.getElementById('publicView');
+    const adminView = document.getElementById('adminView');
+    function showRoute() {
+      const isAdmin = location.hash === '#admin';
+      publicView.classList.toggle('hidden', isAdmin);
+      adminView.classList.toggle('active', isAdmin);
+      document.getElementById('navLinks').classList.remove('open');
+      document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.addEventListener('hashchange', showRoute);
+    document.getElementById('brandHome').addEventListener('click', () => { if (location.hash !== '#inicio') location.hash = 'inicio'; });
+    document.getElementById('backHome').addEventListener('click', () => { location.hash = 'inicio'; });
+    document.querySelectorAll('[data-home-link]').forEach(link => link.addEventListener('click', () => {
+      if (location.hash === '#admin') location.hash = link.getAttribute('href').slice(1);
+    }));
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      const nav = document.getElementById('navLinks');
+      const open = nav.classList.toggle('open');
+      document.getElementById('menuToggle').setAttribute('aria-expanded', String(open));
+    });
+    document.getElementById('loginForm').addEventListener('submit', event => {
+      event.preventDefault();
+      showToast('Demo login: authentication still needs to be configured in the backend. Do not enter your real password in this preview.');
+    });
+    showRoute();
+  </script>
+
+<!--sites-preview-theme:start-->
+<style data-sites-preview-theme>:root{--site-primary:#0c274a !important;--site-on-primary:#ffffff !important}</style>
+<script type="application/json" data-sites-preview-theme>{"appearance":"custom","primary":"#0c274a","secondary":"#79b8ff","background":"#050914","typography":"original","spacing":1,"roundness":1,"headingScale":null,"decorationOpacity":1}</script>
+<!--sites-preview-theme:end-->
+</body>
+</html>
